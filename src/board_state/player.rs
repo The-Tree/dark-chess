@@ -5,7 +5,6 @@ pub enum Player {
 }
 
 // these tests are pretty trivial
-// TODO remove?
 #[cfg(test)]
 mod tests {
     use super::*;

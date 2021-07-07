@@ -1,13 +1,10 @@
-// TODO should these be pub?
-// TODO should these all be in the board_state module?
-// TODO can these be not declared as modules and still used within board state?
 pub mod player;
 pub mod piece;
 pub mod tile;
 pub mod stored_move;
 
 pub use crate::board_state::player::Player;
-pub use crate::board_state::piece::{Piece, PieceType};
+pub use crate::board_state::piece::{ Piece, PieceType };
 pub use crate::board_state::tile::Tile;
 pub use crate::board_state::stored_move::StoredMove;
 
@@ -181,3 +178,5 @@ impl BoardState {
         row_arr
     }
 }
+
+// TODO test suite?

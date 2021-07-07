@@ -1,7 +1,7 @@
 use dark_chess_server::board_state::BoardState;
 // use dark_chess_server::board_state::Player;
 // use dark_chess_server::board_state::Tile;
-// use dark_chess_server::board_state::{Piece, PieceType};
+// use dark_chess_server::board_state::{ Piece, PieceType };
 // use dark_chess_server::board_state::StoredMove;
 
 // use dark_chess_server::move_generation::MoveGeneration;
