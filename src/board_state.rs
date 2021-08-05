@@ -44,7 +44,6 @@ impl BoardState {
         &self.board[x][y]
     }
 
-    // TODO combine utf and normal functions
     pub fn display_full_board(&self) -> String {
         let mut result = String::from("");
 

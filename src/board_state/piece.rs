@@ -23,7 +23,6 @@ impl Piece {
 
     // TODO both symbol functions - should these return chars or &chars?
     // I am not sure, i lean towards I should use &char?
-    // TODO is there a way to not have two functions, one for symbol and one for symbol_utf?
     // these are the normal ascii values for each piece hardcoded. no differentiation between players
     pub fn symbol(&self) -> char {
         match self.piece_type {
@@ -36,9 +35,7 @@ impl Piece {
         }
     }
 
-    // TODO is there a less verbose way to match this?
     // these are the utf-8 values for each piece harcoded
-    // this is arguably harder to read
     pub fn symbol_utf(&self) -> char {
         if self.player == Player::White {
             return match self.piece_type {
@@ -72,8 +69,6 @@ impl Piece {
 }
 
 
-// TODO these tests are also largely 
-// relatively complete
 #[cfg(test)]
 mod tests {
     use super::*;

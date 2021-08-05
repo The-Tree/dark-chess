@@ -1,17 +1,9 @@
 pub mod board_state;
 pub mod move_generation;
 
-// TODO - general needs: refactor to library, add some tests
 // TODO - remove #[derive()] if possible (likely will be possible for debug)
 
-// TODO utf functions are basically the same as the ascii functions with one change,
-// is there a way to combine them?
-
 // TODO implement a list of previous moves?
-// TODO game timer? no, not a part of game logic ive decided
-// TODO maybe seperate board state and game state from the one BoardState into the two GameState and BoardState
-
-// TODO all integers are usize, can they instead be the faster i32?
 
 // TODO next thing I should do is just consider how my code should be organized
 
