@@ -36,7 +36,7 @@ const W_PAWN_DIRS: [Direction; 3] = [DOWN, DOWN_RIGHT, DOWN_LEFT];
 
 pub struct MoveGeneration {}
 
-// TODO tests!
+// TODO tests! most of these functions are untested, but i believe should work
 impl MoveGeneration {
     // checks that a dir is in bounds
     fn within_bounds(dir: &Direction, tile: &Tile) -> bool {
@@ -86,6 +86,34 @@ impl MoveGeneration {
         }
     }
 
+    fn continue_checking_dir(dir: &Direction, tile: &Tile) {
+        let mut moves = Vec::new();
+        
+        if MoveGeneration::check_dir(&potential_dir, tile, board_state) {
+            let (x, y) = MoveGeneration::add_dir(&potential_dir, tile);
+
+            moves.push(StoredMove{ 
+                start_pos: *tile.get_pos(),
+                end_pos: (x, y),
+                promotion: None,
+            });
+            
+           let mut continued_moves = match board_state.get_tile_at_pos().get_piece() {
+                Some(piece) => Vec::new(),
+                None => continue_checking_dir(
+                    Direction {
+                        up: dir.up + dir.up, 
+                        right: dir.right + dir.right
+                    }, 
+                    tile
+                )
+            }
+            moves.append(continued_moves);
+        }
+
+        moves
+    }
+
     // TODO this and knight are nearly identical
     // i think i want them to be seperate functions though,
     // i think it makes my code more immediately readable and understandable
@@ -112,9 +140,8 @@ impl MoveGeneration {
     }
 
     // TODO this is very similar to bishop and rook
-    // TODO important! unfinished, should not work :-(
     fn gen_moves_queen(tile: &Tile, board_state: &BoardState) -> Vec<StoredMove> {
-        // panicking if piece is not of piecetype king, since it should always be so
+        // panicking if piece is not of piecetype queen, since it should always be so
         if tile.get_piece().unwrap().get_piece_type() != &PieceType::Queen {
             panic!("Given the wrong piece type. Piece type given was: {:?}", tile.get_piece().unwrap().get_piece_type())
         }
@@ -122,19 +149,34 @@ impl MoveGeneration {
 
         for potential_dir in KING_QUEEN_DIRS {
             if MoveGeneration::check_dir(&potential_dir, tile, board_state) {
-                let (x, y) = MoveGeneration::add_dir(&potential_dir, tile);
-
-                moves.push(StoredMove{ 
-                    start_pos: *tile.get_pos(),
-                    end_pos: (x, y),
-                    promotion: None,
-                });
-
                 // continue checking & adding this dir if there is no piece, 
                 // add no moves if there is piece
                 let mut continued_moves = match board_state.get_tile_at_pos().get_piece() {
                     Some(piece) => Vec::new(),
-                    None => continue_checking_dir(dir, tile) // TODO function not implemented yet
+                    None => continue_checking_dir(dir, tile)
+                }
+
+                moves.append(continued_moves);
+            }
+        }
+        moves
+    }
+
+    // TODO this is very similar to queen and bishop
+    fn gen_moves_rook(tile: &Tile, board_state: &BoardState) -> Vec<StoredMove> {
+        // panicking if piece is not of piecetype rook, since it should always be so
+        if tile.get_piece().unwrap().get_piece_type() != &PieceType::Rook {
+            panic!("Given the wrong piece type. Piece type given was: {:?}", tile.get_piece().unwrap().get_piece_type())
+        }
+        let mut moves = Vec::new();
+
+        for potential_dir in ROOK_DIRS {
+            if MoveGeneration::check_dir(&potential_dir, tile, board_state) {
+                // continue checking & adding this dir if there is no piece, 
+                // add no moves if there is piece
+                let mut continued_moves = match board_state.get_tile_at_pos().get_piece() {
+                    Some(piece) => Vec::new(),
+                    None => continue_checking_dir(dir, tile)
                 }
 
                 moves.append(continued_moves);
@@ -163,6 +205,31 @@ impl MoveGeneration {
         }
         moves
     }
+
+    // TODO this is very similar to rook and queen
+    fn gen_moves_bishop(tile: &Tile, board_state: &BoardState) -> Vec<StoredMove> {
+        // panicking if piece is not of piecetype bishop, since it should always be so
+        if tile.get_piece().unwrap().get_piece_type() != &PieceType::Bishop {
+            panic!("Given the wrong piece type. Piece type given was: {:?}", tile.get_piece().unwrap().get_piece_type())
+        }
+        let mut moves = Vec::new();
+
+        for potential_dir in BISHOP_DIRS {
+            if MoveGeneration::check_dir(&potential_dir, tile, board_state) {
+                // continue checking & adding this dir if there is no piece, 
+                // add no moves if there is piece
+                let mut continued_moves = match board_state.get_tile_at_pos().get_piece() {
+                    Some(piece) => Vec::new(),
+                    None => continue_checking_dir(dir, tile)
+                }
+
+                moves.append(continued_moves);
+            }
+        }
+        moves
+    }
+
+    // TODO pawn move gen
 }
 
 #[cfg(test)]
