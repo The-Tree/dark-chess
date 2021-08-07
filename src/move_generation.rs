@@ -134,6 +134,25 @@ impl MoveGeneration {
         moves
     }
 
+    pub fn gen_moves_for_player(board_state: &BoardState, player: Player) -> Vec<StoredMove> {
+        // TODO
+        Vec::new()
+    }
+
+    fn gen_moves_tile(tile: &Tile, board_state: &BoardState) -> Vec<StoredMove> {
+        match tile.get_piece() {
+            Some(piece) => match piece.get_piece_type() {
+                PieceType::King => MoveGeneration::gen_moves_king(tile, board_state),
+                PieceType::Queen => MoveGeneration::gen_moves_queen(tile, board_state),
+                PieceType::Rook => MoveGeneration::gen_moves_rook(tile, board_state),
+                PieceType::Knight => MoveGeneration::gen_moves_knight(tile, board_state),
+                PieceType::Bishop => MoveGeneration::gen_moves_bishop(tile, board_state),
+                PieceType::Pawn => MoveGeneration::gen_moves_pawn(tile, board_state),
+            },
+            None => Vec::new()
+        }
+    }
+
     // TODO this and knight are nearly identical
     // i think i want them to be seperate functions though,
     // i think it makes my code more immediately readable and understandable
@@ -224,6 +243,9 @@ impl MoveGeneration {
     }
 
     // TODO pawn move gen
+    fn gen_moves_pawn(tile: &Tile, board_state: &BoardState) -> Vec<StoredMove> {
+        Vec::new()
+    }
 
     // TODO gen all moves for one side
 }
