@@ -12,8 +12,8 @@ Here are a list of features:
   - [x] Representing players
   - [x] Representing tiles
   - [x] Representing moves
-- [ ] Move generation
-  - [ ] Piece move generation
+- [x] Move generation
+  - [x] Piece move generation
     - [x] King move generation
     - [x] Queen move generation
     - [x] Rook move generation
