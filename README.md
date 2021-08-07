@@ -27,6 +27,7 @@ Here are a list of features:
   - [ ] 50 move draw
   - [ ] Three-fold repetition (?)
   - [ ] Pawn promotion
+  - [ ] Pawn two step on first move
 - [ ] Exhaustive tests  
   - Right now, some completed functionality is exhaustively tested with unit tests, and other supposedly completed functionality is not
 
