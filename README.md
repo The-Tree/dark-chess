@@ -19,7 +19,7 @@ Here are a list of features:
     - [x] Rook move generation
     - [x] Knight move generation
     - [x] Bishop move generation
-    - [x] Pawn move generation
+    - [ ] Pawn move generation
   - [x] Player move generation
 - [ ] More specific rules
   - [ ] Castling
