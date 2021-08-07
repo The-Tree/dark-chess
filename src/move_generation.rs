@@ -37,6 +37,7 @@ const W_PAWN_DIRS: [Direction; 3] = [DOWN, DOWN_RIGHT, DOWN_LEFT];
 pub struct MoveGeneration {}
 
 // TODO tests! most of these functions are untested, but i believe should work
+// for similar gen_moves_ functions, there is probably a good way to deal with that
 impl MoveGeneration {
     // checks that a dir is in bounds
     fn within_bounds(dir: &Direction, tile: &Tile) -> bool {
@@ -67,9 +68,10 @@ impl MoveGeneration {
         (x, y)
     }
 
+    // TODO could probably turn into one line, but the more verbose implementation i think is easier to read?
     // checks a direction, and determines if there is a piece there,
     // or if it is out of bounds
-    fn check_dir(dir: &Direction, tile: &Tile, board_state: &BoardState) -> bool {
+    fn valid_dir(dir: &Direction, tile: &Tile, board_state: &BoardState) -> bool {
         // first checks move is within bounds
         if !MoveGeneration::within_bounds(dir, tile) {
             return false;
@@ -86,30 +88,44 @@ impl MoveGeneration {
         }
     }
 
-    fn continue_checking_dir(dir: &Direction, tile: &Tile) {
-        let mut moves = Vec::new();
-        
-        if MoveGeneration::check_dir(&potential_dir, tile, board_state) {
-            let (x, y) = MoveGeneration::add_dir(&potential_dir, tile);
+    // if the spot is empty, or contains empty piece, returns move to this spot
+    fn check_dir(dir: &Direction, tile: &Tile, board_state: &BoardState) -> Option<StoredMove> {
+        if MoveGeneration::valid_dir(dir, tile, board_state) {
+            let (x, y) = MoveGeneration::add_dir(dir, tile);
 
-            moves.push(StoredMove{ 
+            return Some(StoredMove{ 
                 start_pos: *tile.get_pos(),
                 end_pos: (x, y),
                 promotion: None,
-            });
-            
-           let mut continued_moves = match board_state.get_tile_at_pos().get_piece() {
-                Some(piece) => Vec::new(),
-                None => continue_checking_dir(
-                    Direction {
-                        up: dir.up + dir.up, 
-                        right: dir.right + dir.right
-                    }, 
-                    tile
-                )
-            }
-            moves.append(continued_moves);
+            })
+        } else {
+            return None
         }
+    }
+
+    // TODO could likely be cleaned
+    // check_dir but recurses in that direction
+    fn continue_check_dir(dir: &Direction, tile: &Tile, board_state: &BoardState) -> Vec<StoredMove> {
+        let mut moves = Vec::new();
+        
+        match MoveGeneration::check_dir(dir, tile, board_state) {
+            Some(stored_move) => moves.push(stored_move),
+            None => ()
+        };
+            
+        let mut continued_moves = match board_state.get_tile_at_pos(*tile.get_pos()).get_piece() {
+            Some(piece) => Vec::new(),
+            None => MoveGeneration::continue_check_dir(
+                &Direction {
+                    up: dir.up + dir.up, 
+                    right: dir.right + dir.right
+                }, 
+                tile,
+                board_state
+            )
+        };
+
+        moves.append(&mut continued_moves);
 
         moves
     }
@@ -125,17 +141,14 @@ impl MoveGeneration {
         }
         let mut moves = Vec::new();
 
+        // TODO map this instead of for?
         for potential_dir in KING_QUEEN_DIRS {
-            if MoveGeneration::check_dir(&potential_dir, tile, board_state) {
-                let (x, y) = MoveGeneration::add_dir(&potential_dir, tile);
-
-                moves.push(StoredMove{ 
-                    start_pos: *tile.get_pos(),
-                    end_pos: (x, y),
-                    promotion: None,
-                });
+            match MoveGeneration::check_dir(&potential_dir, tile, board_state) {
+                Some(stored_move) => moves.push(stored_move),
+                None => ()
             }
         }
+
         moves
     }
 
@@ -148,16 +161,9 @@ impl MoveGeneration {
         let mut moves = Vec::new();
 
         for potential_dir in KING_QUEEN_DIRS {
-            if MoveGeneration::check_dir(&potential_dir, tile, board_state) {
-                // continue checking & adding this dir if there is no piece, 
-                // add no moves if there is piece
-                let mut continued_moves = match board_state.get_tile_at_pos().get_piece() {
-                    Some(piece) => Vec::new(),
-                    None => continue_checking_dir(dir, tile)
-                }
+            let mut continued_moves = MoveGeneration::continue_check_dir(&potential_dir, tile, board_state);
 
-                moves.append(continued_moves);
-            }
+            moves.append(&mut continued_moves);
         }
         moves
     }
@@ -171,20 +177,14 @@ impl MoveGeneration {
         let mut moves = Vec::new();
 
         for potential_dir in ROOK_DIRS {
-            if MoveGeneration::check_dir(&potential_dir, tile, board_state) {
-                // continue checking & adding this dir if there is no piece, 
-                // add no moves if there is piece
-                let mut continued_moves = match board_state.get_tile_at_pos().get_piece() {
-                    Some(piece) => Vec::new(),
-                    None => continue_checking_dir(dir, tile)
-                }
-
-                moves.append(continued_moves);
-            }
+            let mut continued_moves = MoveGeneration::continue_check_dir(&potential_dir, tile, board_state);
+            
+            moves.append(&mut continued_moves);
         }
         moves
     }
 
+    // very similar to king
     fn gen_moves_knight(tile: &Tile, board_state: &BoardState) -> Vec<StoredMove> {
         // panicking if piece is not of piecetype knight, since it should always be so
         if tile.get_piece().unwrap().get_piece_type() != &PieceType::Knight {
@@ -192,17 +192,14 @@ impl MoveGeneration {
         }
         let mut moves = Vec::new();
 
+        // TODO map this instead of for?
         for potential_dir in KNIGHT_DIRS {
-            if MoveGeneration::check_dir(&potential_dir, tile, board_state) {
-                let (x, y) = MoveGeneration::add_dir(&potential_dir, tile);
-
-                moves.push(StoredMove{ 
-                    start_pos: *curr_pos,
-                    end_pos: (x, y),
-                    promotion: None,
-                });
+            match MoveGeneration::check_dir(&potential_dir, tile, board_state) {
+                Some(stored_move) => moves.push(stored_move),
+                None => ()
             }
         }
+
         moves
     }
 
@@ -215,21 +212,16 @@ impl MoveGeneration {
         let mut moves = Vec::new();
 
         for potential_dir in BISHOP_DIRS {
-            if MoveGeneration::check_dir(&potential_dir, tile, board_state) {
-                // continue checking & adding this dir if there is no piece, 
-                // add no moves if there is piece
-                let mut continued_moves = match board_state.get_tile_at_pos().get_piece() {
-                    Some(piece) => Vec::new(),
-                    None => continue_checking_dir(dir, tile)
-                }
-
-                moves.append(continued_moves);
-            }
+            let mut continued_moves = MoveGeneration::continue_check_dir(&potential_dir, tile, board_state);
+            
+            moves.append(&mut continued_moves);
         }
         moves
     }
 
     // TODO pawn move gen
+
+    // TODO gen all moves for one side
 }
 
 #[cfg(test)]

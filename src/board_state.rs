@@ -35,10 +35,12 @@ impl BoardState {
         }
     }
 
+    // TODO should this instead be a reference to?
     pub fn get_pos_of_tile<'a>(&self, tile: &'a Tile) -> &'a (usize, usize) {
         &tile.get_pos()
     }
 
+    // TODO should this instead be a reference to?
     pub fn get_tile_at_pos(&self, pos: (usize, usize)) -> &Tile {
         let (x, y) = pos;
         &self.board[x][y]
