@@ -45,10 +45,14 @@ impl MoveGeneration {
         // for easier readability
         let (x, y) = MoveGeneration::add_dir(dir, tile);
 
-        x < 8 && x >= 0 && y < 8 && y >= 0
+        // implicitly guaranteed to be >= 0 since x and y are unsigned integers
+        x < 8 && y < 8
     }
 
     // Adds a direction to a tile
+    // TODO integer overflow (underflow?) possible error
+    // example: dir = {-1, -1}, tile at (0, 0) would return (255, 255)
+    // also demonstrates the need to provide testing to this module
     fn add_dir(dir: &Direction, tile: &Tile) -> (usize, usize) {
         let (x, y) = tile.get_pos();
 
